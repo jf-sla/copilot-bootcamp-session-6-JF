@@ -106,6 +106,9 @@ function TodoCard({ todo, onToggle, onEdit, onDelete, isLoading }) {
     );
   }
 
+  const todayString = new Date().toLocaleDateString('en-CA');
+  const overdue = !todo.completed && !!todo.dueDate && todo.dueDate < todayString;
+
   return (
     <div className={`todo-card ${todo.completed ? 'completed' : ''}`}>
       <input
@@ -120,8 +123,8 @@ function TodoCard({ todo, onToggle, onEdit, onDelete, isLoading }) {
       <div className="todo-content">
         <h3 className="todo-title">{todo.title}</h3>
         {todo.dueDate && (
-          <p className="todo-due-date">
-            Due: {formatDate(todo.dueDate)}
+          <p className={`todo-due-date${overdue ? ' todo-due-date--overdue' : ''}`}>
+            Due: {formatDate(todo.dueDate)}{overdue && ' · Overdue'}
           </p>
         )}
       </div>

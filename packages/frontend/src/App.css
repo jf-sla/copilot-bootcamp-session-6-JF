@@ -366,6 +366,10 @@ p {
   color: var(--text-secondary);
 }
 
+.todo-due-date--overdue {
+  color: var(--danger-color);
+}
+
 .todo-actions {
   display: flex;
   gap: 8px;
