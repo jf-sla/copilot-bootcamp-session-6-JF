@@ -5,14 +5,25 @@
 **Status**: Draft  
 **Input**: User description: "Support for Overdue Todo Items — Users need a clear, visual way to identify which todos have not been completed by their due date."
 
+## Clarifications
+
+### Session 2026-03-24
+
+- Q: What is the exact visual treatment for the overdue indicator — color-only, label-only, both, or a card border stripe? → A: Both: the due date text is rendered in the Danger color AND an inline "Overdue" text label is appended next to it.
+- Q: How should the due date be compared to today to determine overdue status — UTC, local date, or direct string comparison? → A: Compare YYYY-MM-DD date strings directly without timezone conversion; no UTC or timezone shifting applied.
+- Q: Where inside the TodoCard layout should the overdue indicator appear — inline after due date, on a separate line, or as a card border stripe? → A: Inline in the content area, appended directly after the due date text (e.g., "Due: Mar 20 · Overdue").
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Visual Overdue Indicator on Todo Card (Priority: P1)
 
 A user opens their todo list and immediately sees which items are past their due date
 without having to manually compare dates. Overdue todos are visually distinguished
-from on-time and undated todos through a clear visual treatment on the todo card — such
-as a distinct text color, label, or icon next to the due date.
+from on-time and undated todos through two combined visual treatments on the todo card:
+the due date text is rendered in the Danger color, and an "Overdue" text label is
+appended inline directly after the due date text within the content area
+(e.g., `"Due: Mar 20 · Overdue"`). No new layout zones or card structural changes
+are required.
 
 **Why this priority**: This is the core value of the feature. Without a visual
 indicator, users have no passive awareness of overdue items; they must mentally compute
@@ -24,7 +35,7 @@ items. No other story needs to be implemented for this test to be meaningful.
 
 **Acceptance Scenarios**:
 
-1. **Given** a todo exists with a due date in the past and is not completed, **When** the user views the todo list, **Then** the todo card displays a visual overdue indicator (e.g., red due date text or "Overdue" label) distinguishing it from other cards.
+1. **Given** a todo exists with a due date in the past and is not completed, **When** the user views the todo list, **Then** the todo card displays the due date text in the Danger color AND shows an "Overdue" text label appended inline directly after the due date text in the content area (e.g., `"Due: Mar 20 · Overdue"`), with no structural changes to the card layout.
 2. **Given** a todo exists with a due date of today and is not completed, **When** the user views the todo list, **Then** the todo card does NOT show an overdue indicator.
 3. **Given** a todo exists with a due date in the future and is not completed, **When** the user views the todo list, **Then** the todo card does NOT show an overdue indicator.
 4. **Given** a todo exists with a due date in the past AND is already marked complete, **When** the user views the todo list, **Then** the todo card does NOT show an overdue indicator (completed items are never overdue).
@@ -65,14 +76,14 @@ and the completed strikethrough style is shown instead.
 
 ### Functional Requirements
 
-- **FR-001**: The system MUST display a distinct visual indicator on any incomplete todo card whose due date is strictly before today's date.
+- **FR-001**: The system MUST display a distinct visual indicator on any incomplete todo card whose due date is strictly before today's date; the indicator MUST appear inline in the card's content area, appended directly after the due date text (e.g., `"Due: Mar 20 · Overdue"`), with no structural changes to the card layout.
 - **FR-002**: The system MUST NOT display an overdue indicator on todo cards that are marked complete, regardless of their due date.
 - **FR-003**: The system MUST NOT display an overdue indicator on todo cards with no due date.
 - **FR-004**: The system MUST NOT display an overdue indicator on todo cards whose due date is today or in the future.
 - **FR-005**: The overdue indicator MUST update dynamically when a todo's completion status changes (toggled complete/incomplete) without requiring a page reload.
 - **FR-006**: The overdue indicator MUST update when a todo's due date is edited to a new value, reflecting the new overdue status after the change is saved.
-- **FR-007**: The visual treatment for overdue items MUST be consistent with the existing UI design system (using the defined Danger color token for the indicator).
-- **FR-008**: The overdue indicator MUST be accessible — it must not rely on color alone; a text label or icon with descriptive meaning MUST also be present.
+- **FR-007**: The due date text on an overdue todo card MUST be rendered in the Danger color token (`#c62828` light / `#ef5350` dark) from the existing design system.
+- **FR-008**: An inline "Overdue" text label MUST be appended next to the due date on overdue todo cards; the indicator MUST NOT rely on color alone, ensuring it is accessible to users who cannot distinguish colors.
 
 ### Key Entities
 
@@ -92,8 +103,9 @@ and the completed strikethrough style is shown instead.
 
 - The application already stores a `dueDate` field on todo items (per existing functional requirements); no data model changes are required.
 - "Overdue" is defined as: the item's due date is strictly before today's calendar date AND the item is not completed.
-- Due date comparison uses the user's local date (browser/client date), which is the date visible to the user in the UI.
+- Due date comparison is performed by comparing the stored `dueDate` YYYY-MM-DD string against today's date formatted as a YYYY-MM-DD string (derived from `new Date()` in the browser). No UTC conversion or timezone shifting is applied; both sides of the comparison are plain date strings.
 - The feature is purely presentational — it derives overdue status at display time and does not introduce a new stored field or backend change.
+- The "Overdue" label is placed inline in the existing content area of the `TodoCard` component, directly after the due date text; no new layout zones, card containers, or structural DOM changes are introduced.
 - The existing Danger color token (`#c62828` light / `#ef5350` dark) from the design system is used for the visual indicator, maintaining design consistency.
 - Both light and dark modes must display the overdue indicator using the appropriate Danger color token for each mode.
 - End-to-end tests are out of scope; unit and integration tests are sufficient per the project's testing guidelines.
